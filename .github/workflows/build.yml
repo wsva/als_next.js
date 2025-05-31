@@ -1,0 +1,54 @@
+name: Build and upgrade Next.js app
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.17.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: |
+          cd src
+          npm exec prisma@5.18.0 generate
+
+      - name: Build Next.js project
+        run: npm run build
+
+      - name: Configure Git for build repo
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@users.noreply.github.com"
+
+      - name: Clone build repo
+        env:
+          BUILD_REPO_PAT: ${{ secrets.BUILD_REPO_PAT }}
+        run: |
+          git clone https://x-access-token:${BUILD_REPO_PAT}@github.com/wsva/als_next.js_build.git als_next.js_build
+
+      - name: Copy build artifacts to build repo
+        run: |
+          rsync -av --delete --exclude '.git/' .next/standalone/ als_next.js_build/
+          mkdir -p als_next.js_build/.next/static
+          rsync -av --delete .next/static/ als_next.js_build/.next/static/
+
+      - name: Commit and push changes
+        working-directory: als_next.js_build
+        run: |
+          git add .
+          git commit -m "Update from workflow: $GITHUB_RUN_ID" || echo "No changes to commit"
+          git push -u origin main
