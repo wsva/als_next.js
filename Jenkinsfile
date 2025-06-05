@@ -8,7 +8,8 @@ podTemplate(
 ) {
     node('restart-als-node') {
         container('kubectl') {
-            sh -c 'kubectl delete pod -n default -l app=als-node'
+            sh 'echo "hello!!!"'
+            sh 'kubectl delete pod -n default -l app=als-node'
         }
     }
 }
