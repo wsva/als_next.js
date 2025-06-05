@@ -17,9 +17,10 @@ type Props = {
     email: string,
     edit_view: boolean,
     simple: boolean,
+    create_new: boolean, // true: create new, false: modify old
 }
 
-export default function CardForm({ card_ext, email, edit_view, simple }: Props) {
+export default function CardForm({ card_ext, email, edit_view, simple, create_new }: Props) {
     const searchParams = useSearchParams()
     const [stateEdit, setStateEdit] = useState(edit_view);
     const [stateCard, setStateCard] = useState<qsa_card>();
@@ -28,6 +29,7 @@ export default function CardForm({ card_ext, email, edit_view, simple }: Props) 
     const [stateTagSelected, setStateTagSelected] = useState<string[]>([]);
     const { register, handleSubmit, formState, setValue, getValues, watch } = useForm<qsa_card>({});
 
+    const formRef = useRef<HTMLFormElement>(null);
     let { ref: refAnswer, ...restAnswer } = register('answer');
     let answerRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -67,6 +69,30 @@ export default function CardForm({ card_ext, email, edit_view, simple }: Props) 
             }
         };
         loadData();
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const isMac = navigator.userAgent.includes('Mac');
+            const isCtrlS =
+                (isMac && event.metaKey && event.key === 's') ||
+                (!isMac && event.ctrlKey && event.key === 's');
+
+            if (isCtrlS) {
+                event.preventDefault(); // 阻止默认“保存网页”行为
+                formRef.current?.requestSubmit(); // 模拟点击提交按钮
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        /**
+         * useEffect 的清理函数（cleanup function），其作用是：
+         * 当组件 卸载（unmount） 或 useEffect 依赖变化时，React 会调用这个返回的函数，用于清理副作用。
+         * 在这里，含义就是：
+         * 当组件卸载或 useEffect 重新执行前，移除之前绑定的 keydown 事件监听器。
+         * 否则，每次组件重新渲染时，handleKeyDown 可能会重复绑定，导致内存泄漏或重复响应事件。
+         */
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -118,6 +144,10 @@ export default function CardForm({ card_ext, email, edit_view, simple }: Props) 
     }
 
     const onSubmit = async (formData: qsa_card) => {
+        if (!stateCard) {
+            toast.error("loading")
+            return
+        }
         if (!formData.familiarity) {
             // can be undefined when simple is true
             formData.familiarity = 0
@@ -148,11 +178,18 @@ export default function CardForm({ card_ext, email, edit_view, simple }: Props) 
             setStateTagAdded(stateTagSelected)
         } else {
             toast.error(`save tag failed`)
+            return
+        }
+
+        if (create_new) {
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         }
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
             <div className='w-full space-y-4 mb-10 px-2'>
                 {stateCard && stateCard.user_id !== email && (
                     <div className='flex flex-row my-1 items-start justify-start gap-4'>

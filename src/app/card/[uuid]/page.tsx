@@ -31,9 +31,9 @@ export default async function ExamplePage({ params, searchParams }: Props) {
   return (
     <>
       {(result?.status === 'success') ? (
-        <CardForm card_ext={result.data} email={email} edit_view={!!searchParams.edit} simple={false} />
+        <CardForm card_ext={result.data} email={email} edit_view={!!searchParams.edit} simple={false} create_new={false} />
       ) : (
-        <CardForm card_ext={card} email={email} edit_view={!!searchParams.edit} simple={simple} />
+        <CardForm card_ext={card} email={email} edit_view={!!searchParams.edit} simple={simple} create_new={true} />
       )}
     </>
   )
