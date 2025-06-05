@@ -1,0 +1,28 @@
+/**
+ * 1) add volumns
+    - name: dot-kube
+      hostPath:
+        path: /home/username/.kube
+    - name: kubectl
+      hostPath:
+        path: /usr/bin/kubectl
+ * 2) mount to jenkins pod
+    - name: dot-kube
+      mountPath: /var/jenkins_home/.kube
+      readOnly: true
+    - name: kubectl
+      mountPath: /usr/bin/kubectl
+      readOnly: true
+  * 3) make the jenkins pod to use host network
+    hostNetwork: true
+ */
+pipeline {
+  agent any
+  stages {
+    stage('Delete Pod') {
+      steps {
+        sh 'kubectl delete pod -n default -l app=als-node'
+      }
+    }
+  }
+}
