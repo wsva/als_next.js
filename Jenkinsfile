@@ -8,7 +8,7 @@ podTemplate(
       image: 'bitnami/kubectl:1.32', 
       command: 'cat', 
       ttyEnabled: true,
-      runAsUser: 1000
+      runAsUser: "1000"
     )
   ]
 ) {
