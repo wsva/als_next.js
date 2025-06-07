@@ -23,7 +23,7 @@ spec:
       containers:
         - name: node
           image: node:20.17.0
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
