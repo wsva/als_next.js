@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         app: node
+      annotations:
+        build: "BUILD_TIME"
     spec:
       securityContext:
         runAsUser: 1000
@@ -21,7 +23,7 @@ spec:
       containers:
         - name: node
           image: node:20.17.0
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
