@@ -201,17 +201,17 @@ export default function CardForm({ card_ext, email, edit_view, simple, create_ne
                     </div>
                 )}
                 <div className='flex flex-row my-1 items-end justify-end gap-4'>
-                    <Button color="primary" variant="solid"
+                    <Button color="primary" variant="solid" size='sm'
                         onPress={() => setStateEdit(!stateEdit)}
                     >
                         {stateEdit ? 'View' : 'Edit'}
                     </Button>
-                    <Button color="primary" type='submit' variant="solid"
+                    <Button color="primary" type='submit' variant="solid"  size='sm'
                         isLoading={formState.isSubmitting}
                     >
                         Save
                     </Button>
-                    <Button color="danger" variant="solid"
+                    <Button color="danger" variant="solid" size='sm'
                         onPress={async () => {
                             if (!stateCard?.uuid) {
                                 return
