@@ -47,7 +47,8 @@ jobs:
           rsync -av --delete --exclude '.git/' .next/standalone/ als_next.js_build/
           cp -r .next/static/ als_next.js_build/.next/
           cp Jenkinsfile als_next.js_build/
-          cp deployment.yaml als_next.js_build/
+          mkdir -p als_next.js_build/kustomize/
+          cp deployment.yaml als_next.js_build/kustomize/
           
       - name: Commit and push changes
         working-directory: als_next.js_build
