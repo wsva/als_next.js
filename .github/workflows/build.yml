@@ -27,7 +27,9 @@ jobs:
           npm exec prisma@5.18.0 generate
 
       - name: Build Next.js project
-        run: npm run build
+        run: |
+          npm run build
+          sed "s/BUILD_TIME/$(date +"%Y%m%d_%H%M%S")/g" deployment.yaml
 
       - name: Configure Git for build repo
         run: |
@@ -45,7 +47,8 @@ jobs:
           rsync -av --delete --exclude '.git/' .next/standalone/ als_next.js_build/
           cp -r .next/static/ als_next.js_build/.next/
           cp Jenkinsfile als_next.js_build/
-
+          cp deployment.yaml als_next.js_build/
+          
       - name: Commit and push changes
         working-directory: als_next.js_build
         run: |
