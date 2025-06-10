@@ -188,8 +188,8 @@ export default function DictationPage() {
                         <p>1, Download video from <StyledLink href="https://www.ted.com">www.ted.com</StyledLink>{`: click "Share" to download MP4`}</p>
                         <p>2, Subtitles are already included in the video. You can extract them using an ffmpeg command:</p>
                         <p className='ps-8'>{`ffprobe exampe.mp4 2>&1 | grep "Subtitle:"`}</p>
-                        <p className='ps-8'># 0:s:0 for the first subtitle, 0:s:1 for the second, 0:s:2 for the third ...</p>
-                        <p className='ps-8'>ffmpeg -i exampe.mp4 -map 0:s:0 exampe.srt</p>
+                        <p className='ps-8'>find english subtitle, for example: #0:6[0x7](eng), to extract it:</p>
+                        <p className='ps-8'>ffmpeg -i exampe.mp4 -map 0:6 exampe.srt</p>
                     </div>
                     <p>4, Example: ARD Mediathek</p>
                     <div className='ms-8 bg-slate-100'>

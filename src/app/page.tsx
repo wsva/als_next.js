@@ -29,7 +29,7 @@ export default async function Home() {
       <Item href='/listening/dictation' label='Dictation'
         description='Upload audio and subtitle, and then do dictation.'
       />
-      <Item href='http://yanansworkshop.site:1235/' label='Dictation(old)'
+      <Item href='https://yanansworkshop.site:1235/' label='Dictation(old)'
         description='dictation in textbook'
       />
       <Card className="m-4 col-span-full"></Card>
