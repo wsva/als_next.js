@@ -3,7 +3,9 @@
 import { formatDate } from '@/lib/utils';
 import { Listbox, ListboxItem } from "@heroui/react"
 import { blog } from '@prisma/client';
-import Link from 'next/link';
+// cannot jump on click on phone
+//import Link from 'next/link';
+import { Link } from "@heroui/react"
 import React from 'react'
 
 type Props = {
