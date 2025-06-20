@@ -206,7 +206,7 @@ export default function CardForm({ card_ext, email, edit_view, simple, create_ne
                     >
                         {stateEdit ? 'View' : 'Edit'}
                     </Button>
-                    <Button color="primary" type='submit' variant="solid"  size='sm'
+                    <Button color="primary" type='submit' variant="solid" size='sm'
                         isLoading={formState.isSubmitting}
                     >
                         Save
@@ -275,11 +275,11 @@ export default function CardForm({ card_ext, email, edit_view, simple, create_ne
                                 {["#", "⬌", "■", "=", "≈", "➤", "🡆"].map((v, i) =>
                                     <Button key={`char1-${i}`} isIconOnly className='text-xl' onPress={() => insertToAnswer(v, '')}>{v}</Button>
                                 )}
-                                {["ä", "Ä", "ö", "Ö", "ü", "Ü", "ß", "€", "`````"].map((v, i) =>
+                                {["ä", "Ä", "ö", "Ö", "ü", "Ü", "ß", "é", "€"].map((v, i) =>
                                     <Button key={`char2-${i}`} isIconOnly className='text-xl' onPress={() => insertToAnswer(v, '')}>{v}</Button>
                                 )}
-                                {["**"].map((v, i) =>
-                                    <Button key={`char3-${i}`} isIconOnly className='text-xl' onPress={() => insertToAnswer(v, v)}>{v}</Button>
+                                {[["B", "**", "**"], ["„“", "„", "“"], ["‚‘", "‚", "‘"], ["C", "`````\n", "\n`````"]].map((v, i) =>
+                                    <Button key={`char3-${i}`} isIconOnly className='text-xl' onPress={() => insertToAnswer(v[1], v[2])}>{v[0]}</Button>
                                 )}
                             </ButtonGroup>
                             {/* 
