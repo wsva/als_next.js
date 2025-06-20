@@ -56,7 +56,7 @@ export default function BlogForm({ item, email, edit_view }: Props) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <div className='w-full space-y-4 mb-10'>
+            <div className='w-full space-y-4 px-2 mb-10'>
                 {item && item.user_id !== email && (
                     <div className='flex flex-row my-1 items-start justify-start gap-4'>
                         <Link className='text-blue-500 underline' target='_blank'
@@ -73,13 +73,11 @@ export default function BlogForm({ item, email, edit_view }: Props) {
                         >
                             {stateEdit ? 'View' : 'Edit'}
                         </Button>
-                        {stateEdit && (
-                            <Button color="primary" variant="solid" size='sm' type='submit'
-                                isLoading={formState.isSubmitting}
-                            >
-                                Save
-                            </Button>
-                        )}
+                        <Button color="primary" variant="solid" size='sm' type='submit'
+                            isLoading={formState.isSubmitting}
+                        >
+                            Save
+                        </Button>
                     </div>
                 )}
                 {stateEdit ? (
@@ -110,14 +108,14 @@ export default function BlogForm({ item, email, edit_view }: Props) {
                     </>
                 ) : (
                     <>
-                        <div className='text-3xl mx-1 leading-tight font-roboto font-bold'>
+                        <div className='text-3xl leading-tight font-roboto font-bold'>
                             {watch('title', getDefault('title') as string | '')}
                         </div>
                         {/* <div className='text-md font-roboto mx-8'>
                             {watch('description', getDefault('description') as string | '')}
                         </div> */}
                         <div
-                            className='MD my-1 text-xl leading-tight font-roboto indent-0 whitespace-pre-wrap break-words hyphens-auto'
+                            className='MD px-2 my-1 text-xl leading-tight font-roboto indent-0 whitespace-pre-wrap break-words hyphens-auto'
                             dangerouslySetInnerHTML={{
                                 __html: getHTML(watch('content', getDefault('content') as string) || '')
                             }}
