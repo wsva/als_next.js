@@ -68,21 +68,18 @@ export default function BlogForm({ item, email, edit_view }: Props) {
                 )}
                 {(!item?.user_id || item.user_id === email) && (
                     <div className='flex flex-row my-1 items-end justify-end gap-4'>
-                        <Button
-                            color="primary"
-                            variant="solid"
+                        <Button color="primary" variant="solid" size='sm'
                             onPress={() => setStateEdit(!stateEdit)}
                         >
                             {stateEdit ? 'View' : 'Edit'}
                         </Button>
-                        <Button
-                            isLoading={formState.isSubmitting}
-                            color="primary"
-                            type='submit'
-                            variant="solid"
-                        >
-                            Save
-                        </Button>
+                        {stateEdit && (
+                            <Button color="primary" variant="solid" size='sm' type='submit'
+                                isLoading={formState.isSubmitting}
+                            >
+                                Save
+                            </Button>
+                        )}
                     </div>
                 )}
                 {stateEdit ? (
@@ -113,7 +110,7 @@ export default function BlogForm({ item, email, edit_view }: Props) {
                     </>
                 ) : (
                     <>
-                        <div className='text-3xl leading-tight font-roboto font-bold'>
+                        <div className='text-3xl mx-1 leading-tight font-roboto font-bold'>
                             {watch('title', getDefault('title') as string | '')}
                         </div>
                         {/* <div className='text-md font-roboto mx-8'>
