@@ -49,6 +49,7 @@ export default function BlogForm({ item, email, edit_view }: Props) {
         })
         if (result.status === 'success') {
             toast.success('save blog success')
+            setStateEdit(false)
         } else {
             toast.error('save blog failed')
         }
