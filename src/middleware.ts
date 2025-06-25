@@ -1,12 +1,12 @@
 import { auth as middleware } from "@/auth"
-import { authRoutes, publicRoutes } from "./routes";
+import { authRoutes, isPublicRoute } from "./routes";
 import { NextResponse } from "next/server";
 
 export default middleware((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
 
-    const isPublic = publicRoutes.includes(nextUrl.pathname);
+    const isPublic = isPublicRoute(nextUrl.pathname);
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
     if (isPublic) {
