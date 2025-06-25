@@ -48,11 +48,11 @@ export default async function Home() {
       />
       <Card className="m-4 col-span-full"></Card>
       
-      <Item href='/blog/add' label='New Blog'
-        description='Blog is for writings.'
-      />
       <Item href='/blog' label='Blog List'
         description='View all blogs.'
+      />
+      <Item href='/blog/add' label='New Blog'
+        description='Blog is for writings.'
       />
       </div>
   );

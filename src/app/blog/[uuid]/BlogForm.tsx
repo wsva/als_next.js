@@ -49,7 +49,8 @@ export default function BlogForm({ item, email, edit_view }: Props) {
         })
         if (result.status === 'success') {
             toast.success('save blog success')
-            setStateEdit(false)
+            //setStateEdit(false)
+            window.location.href = "/blog"
         } else {
             toast.error('save blog failed')
         }
