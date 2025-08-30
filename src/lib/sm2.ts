@@ -55,15 +55,15 @@ export function updateSM2(card: card_sm2, grade: number): card_sm2 {
     ease_factor = 1.3;
   }
 
-  const nextReviewAt = new Date();
-  nextReviewAt.setDate(nextReviewAt.getDate() + interval_days);
+  const next_review_at = new Date();
+  next_review_at.setDate(next_review_at.getDate() + interval_days);
 
   return {
     ...card,
     repetitions,
     interval_days,
     ease_factor,
-    lastReviewAt: new Date(),
-    nextReviewAt,
+    last_review_at: new Date(),
+    next_review_at,
   };
 }
