@@ -47,6 +47,7 @@ spec:
               git clone https://github.com/wsva/als_next.js_build /home/node/app
               cd /home/node/app
               echo 'DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD}@db:5432/alsdb' > .env
+              echo 'NEXTAUTH_URL=https://yanansworkshop.site' >> .env
               echo 'AUTH_SECRET="${AUTH_SECRET}"' >> .env
               echo 'AUTH_TRUST_HOST=true' >> .env
               echo 'OAUTH2_AUTHORIZATION=https://yanansworkshop.site/oauth2/authorize' >> .env
