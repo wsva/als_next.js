@@ -45,3 +45,11 @@ type card_ext = Partial<qsa_card> & {
     tag_list_remove?: string[];
     tag_list_suggestion?: string[];
 }
+
+type card_sm2 = Partial<qsa_card> & {
+    interval_days: number;  // 上一次的间隔
+    ease_factor: number;    // 难度系数
+    repetitions: number;   // 连续答对次数
+    last_review_at: Data;
+    next_review_at: Data;
+}

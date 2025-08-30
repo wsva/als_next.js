@@ -1,6 +1,7 @@
 import { auth as middleware } from "@/auth"
 import { authRoutes, isPublicRoute } from "./routes";
 import { NextResponse } from "next/server";
+import { toast } from 'react-toastify'
 
 export default middleware((req) => {
     const { nextUrl } = req;
@@ -21,7 +22,8 @@ export default middleware((req) => {
     }
 
     if (!isPublic && !isLoggedIn) {
-        return NextResponse.redirect(new URL('/login', nextUrl));
+        toast.error("need login")
+        return NextResponse.redirect(new URL('/', nextUrl));
     }
 
     return NextResponse.next();

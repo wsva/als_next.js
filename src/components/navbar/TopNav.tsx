@@ -1,16 +1,21 @@
+'use client';
+
 import { Button, Navbar, NavbarBrand, NavbarContent } from "@heroui/react"
 import Link from 'next/link'
 import React from 'react'
-import { auth } from '@/auth'
 import UserMenu from './UserMenu'
 import WordMenu from './WordMenu'
 import ListeningMenu from './ListeningMenu'
 import BlogMenu from './BlogMenu'
 import CardMenu from './CardMenu'
+import { signIn } from "next-auth/react"
+import { Session } from "next-auth"
 
-export default async function TopNav() {
-    const session = await auth()
+type Props = {
+    session: Session | null
+}
 
+export default function TopNav({ session }: Props) {
     return (
         <Navbar
             shouldHideOnScroll
@@ -46,13 +51,11 @@ export default async function TopNav() {
 
             <NavbarContent justify='end'>
                 {session?.user ? (
-                    <UserMenu user={session.user} />
+                    <UserMenu session={session} />
                 ) : (
-                    <Button
-                        as={Link}
-                        href='/login'
-                        variant='bordered'
-                        className='text-gray-500'>
+                    <Button variant='bordered' className='text-gray-500'
+                        onPress={() => signIn('wsva_oauth2')}
+                    >
                         Login
                     </Button>
                 )}
