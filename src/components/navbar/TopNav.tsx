@@ -21,7 +21,7 @@ export default function TopNav({ session }: Props) {
             shouldHideOnScroll
             maxWidth='full'
             //className='border-b-1'
-            className='bg-gradient-to-b from-[#EBE1DA] to-[#FFF5EE]'
+            className='bg-gradient-to-b from-[#ECD2B0] to-[#FBEDDA]'
             classNames={{
                 item: [
                     'text-sm',
