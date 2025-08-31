@@ -53,6 +53,7 @@ spec:
               echo 'OAUTH2_AUTHORIZATION=https://yanansworkshop.site/oauth2/authorize' >> .env
               echo 'OAUTH2_TOKEN=https://yanansworkshop.site/oauth2/token' >> .env
               echo 'OAUTH2_USERINFO=https://yanansworkshop.site/oauth2/userinfo' >> .env
+              echo 'OAUTH2_LOGOUT=https://yanansworkshop.site/oauth2/logout' >> .env
               echo 'OAUTH2_CLIENT_ID=als_next.js' >> .env
               node server.js
           ports:

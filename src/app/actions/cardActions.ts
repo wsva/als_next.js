@@ -5,9 +5,9 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { ActionResult, card_ext } from "@/lib/types";
+import { ActionResult, card_ext, card_sm2 } from "@/lib/types";
 import { getUUID, getWeightedRandom } from "@/lib/utils";
-import { qsa_card, Prisma, qsa_tag, qsa_card_tag } from '@prisma/client'
+import { qsa_card, Prisma, qsa_tag, qsa_card_tag, qsa_card_review } from '@prisma/client'
 import { FilterType, TagAll, TagUnspecified, TagNo } from "@/lib/card";
 
 export async function getCardsOfMy(
@@ -213,36 +213,6 @@ export async function saveCard(item: qsa_card): Promise<ActionResult<qsa_card>> 
     }
 }
 
-export async function getCardTest(email: string, tag_uuid: string): Promise<ActionResult<qsa_card>> {
-    try {
-        const cards = await prisma.$queryRaw<qsa_card[]>(
-            Prisma.sql`SELECT * FROM qsa_card t0 WHERE
-                    length(t0.question) > 0
-                    and length(t0.answer) > 0
-                    and t0.familiarity < 6
-                    and t0.user_id = ${email}
-                    and exists (select 1 from qsa_card_tag t1 where
-                        t1.card_uuid = t0.uuid
-                        and t1.tag_uuid = ${tag_uuid})
-                    `
-        )
-
-        if (cards.length < 1) {
-            return { status: 'error', error: 'no card found for test' }
-        }
-
-        // weighted random
-        const weights = cards.map((v) => 6 - v.familiarity)
-        const i = getWeightedRandom(weights)
-
-        return { status: "success", data: cards[i] }
-    } catch (error) {
-        console.log(error)
-        return { status: 'error', error: (error as object).toString() }
-    }
-}
-
-
 export async function removeCard(uuid: string): Promise<ActionResult<qsa_card>> {
     try {
         const result = await prisma.qsa_card.delete({
@@ -255,25 +225,83 @@ export async function removeCard(uuid: string): Promise<ActionResult<qsa_card>> 
     }
 }
 
-export async function setCardFamiliarity(email: string, uuid: string, familiarity: number): Promise<ActionResult<qsa_card>> {
+export async function getCardTestByUUID(uuid: string): Promise<ActionResult<card_sm2>> {
     try {
-        const result = await prisma.qsa_card.update({
-            where: { uuid, user_id: email },
-            data: { familiarity }
-        })
-        await prisma.qsa_card_log.create({
-            data: {
-                uuid: getUUID(),
-                card_uuid: uuid,
-                familiarity: familiarity,
-                created_at: new Date(),
-                updated_at: new Date(),
-            }
-        })
-        return { status: "success", data: result }
+        const [card, review] = await Promise.all([
+            prisma.qsa_card.findUnique({ where: { uuid } }),
+            prisma.qsa_card_review.findUnique({ where: { uuid } }),
+        ]);
+        if (!card) {
+            return { status: "error", error: "no data found" };
+        }
+        return { status: "success", data: { ...card, ...review } }
     } catch (error) {
         console.log(error)
         return { status: 'error', error: (error as object).toString() }
+    }
+}
+
+export async function getCardTest(email: string, tag_uuid: string): Promise<ActionResult<card_sm2>> {
+    try {
+        let cards = await prisma.$queryRaw<card_sm2[]>(
+            Prisma.sql`SELECT t0.*, t1.*
+                    FROM qsa_card t0, qsa_card_review t1 
+                    WHERE t0.uuid = t1.uuid
+                    and t0.familiarity < 6
+                    and t0.user_id = ${email}
+                    and t1.next_review_at < now()
+                    and exists (select 1 from qsa_card_tag t2 where
+                        t2.card_uuid = t0.uuid
+                        and t2.tag_uuid = ${tag_uuid})
+                    `
+        )
+
+        if (cards.length < 1) {
+            cards = await prisma.$queryRaw<card_sm2[]>(
+                Prisma.sql`SELECT t0.* 
+                    FROM qsa_card t0 
+                    WHERE length(t0.question) > 0
+                    and length(t0.answer) > 0
+                    and t0.familiarity < 6
+                    and t0.user_id = ${email}
+                    and exists (select 1 from qsa_card_tag t1 where
+                        t1.card_uuid = t0.uuid
+                        and t1.tag_uuid = ${tag_uuid})
+                    `
+            )
+        }
+
+        if (cards.length < 1) {
+            return { status: 'error', error: 'no card found for test' }
+        }
+
+        // weighted random
+        const weights = cards.map((v) => 6 - v.familiarity!)
+        const i = getWeightedRandom(weights)
+
+        return { status: "success", data: cards[i] }
+    } catch (error) {
+        console.log(error)
+        return { status: 'error', error: (error as object).toString() }
+    }
+}
+
+
+export async function saveCardReview(item: qsa_card_review): Promise<boolean> {
+    try {
+        await prisma.qsa_card_review.upsert({
+            where: { uuid: item.uuid },
+            create: item,
+            update: item,
+        })
+        await prisma.qsa_card.update({
+            where: { uuid: item.uuid },
+            data: { familiarity: item.familiarity }
+        })
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
     }
 }
 

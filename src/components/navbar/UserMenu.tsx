@@ -1,9 +1,9 @@
 'use client';
 
-import { signOutUser } from '@/app/actions/authActions';
 import { Avatar, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button, Link } from "@heroui/react"
 import { Session } from 'next-auth';
 import React from 'react'
+import { signOut } from "next-auth/react"
 
 type Props = {
     session: Session
@@ -32,7 +32,7 @@ export default function UserMenu({ session }: Props) {
                 <DropdownItem key="logout"
                     className="text-danger"
                     color="danger"
-                    onPress={async () => { await signOutUser() }}
+                    onPress={() => { signOut({ redirectTo: "/" }) }}
                 >
                     Sign Out
                 </DropdownItem>

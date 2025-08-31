@@ -1,44 +1,80 @@
 'use client'
 
-import { setCardFamiliarity } from '@/app/actions/cardActions';
-import {
-    Button,
-    ButtonGroup,
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownItem,
-    Tooltip,
-    Textarea,
-    DropdownSection,
-} from "@heroui/react";
+import { Button, ButtonGroup, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Textarea, DropdownSection } from "@heroui/react";
 import React, { useState } from 'react'
-import { qsa_card } from '@prisma/client'
 import { getHTML } from '@/lib/utils';
 import Link from 'next/link';
 import { BiCaretDown } from 'react-icons/bi';
-import { ActionResult, sentence } from '@/lib/types';
+import { ActionResult, card_sm2, sentence } from '@/lib/types';
 import SentenceList from '@/components/SentenceList';
 import { searchSentenceByLemma } from '@/app/actions/wordActions';
+import { saveCardReview } from '@/app/actions/cardActions';
 import { FamiliarityList } from '@/lib/card';
 import '@/lib/Markdown.css';
 import { toast } from 'react-toastify';
-import { useRouter } from "next/navigation";
 
 type Props = {
     user_id: string;
-    item: qsa_card;
-    tag_uuid: string;
+    item: card_sm2;
 }
 
-export default function TestForm({ user_id, item, tag_uuid }: Props) {
+export default function TestForm({ user_id, item }: Props) {
     const [stateSuggestion, setStateSuggestion] = useState<boolean>(false)
     const [stateAnswer, setStateAnswer] = useState<boolean>(false)
     const [stateExamples, setStateExamples] = useState<ActionResult<sentence[]>>()
-    const router = useRouter()
 
     const getColor = (familiarity: number) => {
         return FamiliarityList.map((v) => v.color)[familiarity]
+    }
+
+    const handleFeedback = async (familiarity: number) => {
+        if (user_id !== item.user_id) {
+            toast.error("this is not your card")
+            return
+        }
+
+        let { uuid, repetitions, interval_days, ease_factor } = item;
+
+        if (!interval_days) interval_days = 0
+        if (!ease_factor) ease_factor = 0
+        if (!repetitions) repetitions = 0
+
+        if (familiarity < 3) {
+            repetitions = 0;
+            interval_days = 1;
+        } else {
+            if (repetitions === 0) {
+                interval_days = 1;
+            } else if (repetitions === 1) {
+                interval_days = 6;
+            } else {
+                interval_days = Math.round(interval_days * ease_factor);
+            }
+            repetitions += 1;
+        }
+
+        ease_factor = ease_factor + (0.1 - (5 - familiarity) * (0.08 + (5 - familiarity) * 0.02));
+        if (ease_factor < 1.3) {
+            ease_factor = 1.3;
+        }
+
+        const next_review_at = new Date();
+        next_review_at.setDate(next_review_at.getDate() + interval_days);
+
+        const result = await saveCardReview({
+            uuid,
+            interval_days,
+            ease_factor,
+            repetitions,
+            familiarity,
+            last_review_at: new Date(),
+            next_review_at,
+        });
+        if (result) {
+            window.location.reload()
+        } else {
+            toast.error("save review error")
+        }
     }
 
     return (
@@ -95,13 +131,7 @@ export default function TestForm({ user_id, item, tag_uuid }: Props) {
                             selectionMode="single"
                             onSelectionChange={async (keys) => {
                                 if (keys.currentKey) {
-                                    const familiarity = parseInt(keys.currentKey)
-                                    const result = await setCardFamiliarity(user_id, item.uuid, familiarity)
-                                    if (result.status === "success") {
-                                        window.location.reload()
-                                    } else {
-                                        toast.error("save familiarity error")
-                                    }
+                                    await handleFeedback(parseInt(keys.currentKey))
                                 }
                             }}
                         >

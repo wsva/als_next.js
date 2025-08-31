@@ -32,5 +32,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
         },
     ],
+    events: {
+        async signOut(message) {
+            if ("token" in message && message.token?.email) {
+                const formData = new FormData();
+                formData.append("user_id", message.token.email);
+                await fetch(`${process.env.OAUTH2_LOGOUT}`, {
+                    method: "POST",
+                    body: formData,
+                })
+            }
+        },
+    },
     debug: true,
 })

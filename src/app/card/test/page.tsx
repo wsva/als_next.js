@@ -1,4 +1,4 @@
-import { getCard, getCardTest, getTagAll } from '@/app/actions/cardActions';
+import { getCardTest, getCardTestByUUID, getTagAll } from '@/app/actions/cardActions';
 import { auth } from '@/auth';
 import React from 'react'
 import TestForm from './TestForm';
@@ -26,7 +26,7 @@ export default async function CardTestPage({ params, searchParams }: Props) {
     const card_uuid = typeof searchParams.uuid === 'string' ? searchParams.uuid : '';
     const result = !!tag_uuid
         ? (!!card_uuid
-            ? await getCard(card_uuid)
+            ? await getCardTestByUUID(card_uuid)
             : await getCardTest(email, tag_uuid))
         : undefined
 
@@ -34,7 +34,7 @@ export default async function CardTestPage({ params, searchParams }: Props) {
         <>
             {!!tag_uuid
                 ? ((result?.status === 'success')
-                    ? <TestForm user_id={email} item={result.data} tag_uuid={tag_uuid} />
+                    ? <TestForm user_id={email} item={result.data} />
                     : <div className='text-2xl'>no card for test</div>)
                 : <div className='flex flex-col items-start justify-center my-4'>
                     <div className='text-2xl'>

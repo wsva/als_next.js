@@ -186,10 +186,12 @@ model qsa_card_tag {
   @@unique([card_uuid, tag_uuid])
 }
 
-model qsa_card_log {
-  uuid        String   @unique
-  card_uuid   String
-  familiarity Int
-  created_at  DateTime
-  updated_at  DateTime
+model qsa_card_review {
+  uuid            String   @unique
+  interval_days   Int
+  ease_factor     Int
+  repetitions     Int
+  familiarity     Int
+  last_review_at  DateTime
+  next_review_at  DateTime
 }
