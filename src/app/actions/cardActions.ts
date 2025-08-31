@@ -305,6 +305,19 @@ export async function saveCardReview(item: qsa_card_review): Promise<boolean> {
     }
 }
 
+export async function setCardFamiliarity(uuid: string, familiarity: number): Promise<boolean> {
+    try {
+        await prisma.qsa_card.update({
+            where: { uuid },
+            data: { familiarity }
+        })
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
 export async function getTag(uuid: string): Promise<ActionResult<qsa_tag>> {
     try {
         const result = await prisma.qsa_tag.findUnique({

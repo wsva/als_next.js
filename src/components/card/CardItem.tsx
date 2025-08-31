@@ -6,7 +6,7 @@ import { qsa_card, qsa_tag } from '@prisma/client';
 import React, { useState } from 'react';
 import SetTag from './SetTag';
 import { FamiliarityList } from '@/lib/card';
-import { getTagAll, setCardFamiliarity } from '@/app/actions/cardActions';
+import { setCardFamiliarity } from '@/app/actions/cardActions';
 import { toast } from 'react-toastify';
 import Collect from './Collect';
 
@@ -82,8 +82,8 @@ export default function CardItem({ email, card, edit_view, tag_list }: Props) {
                                         if (keys.currentKey) {
                                             const familiarity = parseInt(keys.currentKey)
                                             setStateFamiliarity(familiarity)
-                                            const result = await setCardFamiliarity(email, card.uuid, familiarity)
-                                            if (result.status === 'success') {
+                                            const result = await setCardFamiliarity(card.uuid, familiarity)
+                                            if (result) {
                                                 toast.success(`save familiarity successfully`)
                                             } else {
                                                 toast.error(`save familiarity failed`)
