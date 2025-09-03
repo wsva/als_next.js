@@ -188,6 +188,39 @@ model qsa_card_tag {
 
 model qsa_card_review {
   uuid            String   @unique
+  card_uuid       String
+  user_id         String
+  interval_days   Int
+  ease_factor     Int
+  repetitions     Int
+  familiarity     Int
+  last_review_at  DateTime
+  next_review_at  DateTime
+}
+
+model speak_text {
+  uuid        String   @unique
+  text        String
+  note        String
+  created_by  String
+  created_at  DateTime
+  updated_at  DateTime
+}
+
+model speak_media {
+  uuid        String   @unique
+  text_uuid   String
+  location    String
+  original    String
+  created_by  String
+  created_at  DateTime
+  updated_at  DateTime
+}
+
+model speak_review {
+  uuid            String   @unique
+  text_uuid       String
+  user_id         String
   interval_days   Int
   ease_factor     Int
   repetitions     Int

@@ -5,7 +5,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { ActionResult, card_ext, card_sm2 } from "@/lib/types";
+import { ActionResult, card_ext, card_review } from "@/lib/types";
 import { getUUID, getWeightedRandom } from "@/lib/utils";
 import { qsa_card, Prisma, qsa_tag, qsa_card_tag, qsa_card_review } from '@prisma/client'
 import { FilterType, TagAll, TagUnspecified, TagNo } from "@/lib/card";
@@ -225,7 +225,7 @@ export async function removeCard(uuid: string): Promise<ActionResult<qsa_card>> 
     }
 }
 
-export async function getCardTestByUUID(uuid: string): Promise<ActionResult<card_sm2>> {
+export async function getCardTestByUUID(uuid: string): Promise<ActionResult<card_review>> {
     try {
         const [card, review] = await Promise.all([
             prisma.qsa_card.findUnique({ where: { uuid } }),
@@ -234,52 +234,84 @@ export async function getCardTestByUUID(uuid: string): Promise<ActionResult<card
         if (!card) {
             return { status: "error", error: "no data found" };
         }
-        return { status: "success", data: { ...card, ...review } }
+        if (review) {
+            return { status: "success", data: { ...review, card } }
+        }
+        return {
+            status: "success", data: {
+                uuid: getUUID(),
+                card_uuid: card.uuid,
+                user_id: card.user_id,
+                interval_days: 0,
+                ease_factor: 0,
+                repetitions: 0,
+                familiarity: 0,
+                last_review_at: new Date(),
+                next_review_at: new Date(),
+                card: card,
+            }
+        }
     } catch (error) {
         console.log(error)
         return { status: 'error', error: (error as object).toString() }
     }
 }
 
-export async function getCardTest(email: string, tag_uuid: string): Promise<ActionResult<card_sm2>> {
+export async function getCardTest(email: string, tag_uuid: string): Promise<ActionResult<card_review>> {
     try {
-        let cards = await prisma.$queryRaw<card_sm2[]>(
-            Prisma.sql`SELECT t0.*, t1.*
-                    FROM qsa_card t0, qsa_card_review t1 
-                    WHERE t0.uuid = t1.uuid
-                    and t0.familiarity < 6
+        const reviews = await prisma.$queryRaw<card_review[]>(
+            Prisma.sql`SELECT t0.*
+                    FROM qsa_card_review t0
+                    WHERE t0.familiarity < 6
                     and t0.user_id = ${email}
-                    and t1.next_review_at < now()
-                    and exists (select 1 from qsa_card_tag t2 where
-                        t2.card_uuid = t0.uuid
-                        and t2.tag_uuid = ${tag_uuid})
-                    `
-        )
-
-        if (cards.length < 1) {
-            cards = await prisma.$queryRaw<card_sm2[]>(
-                Prisma.sql`SELECT t0.* 
-                    FROM qsa_card t0 
-                    WHERE length(t0.question) > 0
-                    and length(t0.answer) > 0
-                    and t0.familiarity < 6
-                    and t0.user_id = ${email}
+                    and t0.next_review_at < now()
                     and exists (select 1 from qsa_card_tag t1 where
-                        t1.card_uuid = t0.uuid
+                        t1.card_uuid = t0.card_uuid
                         and t1.tag_uuid = ${tag_uuid})
                     `
-            )
+        )
+        if (reviews.length > 0) {
+            const weights = reviews.map((v) => 6 - v.familiarity!)
+            const i = getWeightedRandom(weights)
+            const selected = reviews[i]
+            const card = await prisma.qsa_card.findUnique({ where: { uuid: selected.card_uuid } })
+            if (!card) {
+                return { status: 'error', error: `no card found by uuid: ${selected.card_uuid}` }
+            }
+            return { status: "success", data: { ...selected, card } }
         }
 
-        if (cards.length < 1) {
-            return { status: 'error', error: 'no card found for test' }
+        const cards = await prisma.$queryRaw<qsa_card[]>(
+            Prisma.sql`SELECT t0.* 
+                FROM qsa_card t0 
+                WHERE length(t0.question) > 0
+                and length(t0.answer) > 0
+                and t0.familiarity < 6
+                and t0.user_id = ${email}
+                and exists (select 1 from qsa_card_tag t1 where
+                    t1.card_uuid = t0.uuid
+                    and t1.tag_uuid = ${tag_uuid})
+                `
+        )
+        if (cards.length > 0) {
+            const weights = cards.map((v) => 6 - v.familiarity!)
+            const i = getWeightedRandom(weights)
+            return {
+                status: "success", data: {
+                    uuid: getUUID(),
+                    card_uuid: cards[i].uuid,
+                    user_id: cards[i].user_id,
+                    interval_days: 0,
+                    ease_factor: 0,
+                    repetitions: 0,
+                    familiarity: 0,
+                    last_review_at: new Date(),
+                    next_review_at: new Date(),
+                    card: cards[i],
+                }
+            }
         }
-
-        // weighted random
-        const weights = cards.map((v) => 6 - v.familiarity!)
-        const i = getWeightedRandom(weights)
-
-        return { status: "success", data: cards[i] }
+        return { status: 'error', error: 'no card found for test' }
     } catch (error) {
         console.log(error)
         return { status: 'error', error: (error as object).toString() }

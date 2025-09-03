@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Navbar, NavbarBrand, NavbarContent } from "@heroui/react"
+import { Button, Navbar, NavbarBrand, NavbarContent, Tooltip } from "@heroui/react"
 import Link from 'next/link'
 import React from 'react'
 import UserMenu from './UserMenu'
@@ -33,12 +33,15 @@ export default function TopNav({ session }: Props) {
             }}
         >
             <NavbarBrand className='flex-grow-0 mr-1 sm:mr-4'>
-                <Link
-                    className='font-bold text-sm sm:text-2xl text-red-500'
-                    href='/'
-                >
-                    ALS
-                </Link>
+                <Tooltip content='Fremdsprache macht Spaß!'>
+                    <Link
+                        className='font-bold text-sm sm:text-2xl text-red-500'
+                        href='/'
+                    >
+                        FmS
+                    </Link>
+                </Tooltip>
+
             </NavbarBrand>
 
             <NavbarContent className="flex gap-1 sm:gap-4" justify="start">

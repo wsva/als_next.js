@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import { getHTML } from '@/lib/utils';
 import Link from 'next/link';
 import { BiCaretDown } from 'react-icons/bi';
-import { ActionResult, card_sm2, sentence } from '@/lib/types';
+import { ActionResult, card_review, sentence } from '@/lib/types';
 import SentenceList from '@/components/SentenceList';
 import { searchSentenceByLemma } from '@/app/actions/wordActions';
 import { saveCardReview } from '@/app/actions/cardActions';
@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 
 type Props = {
     user_id: string;
-    item: card_sm2;
+    item: card_review;
 }
 
 export default function TestForm({ user_id, item }: Props) {
@@ -33,7 +33,7 @@ export default function TestForm({ user_id, item }: Props) {
             return
         }
 
-        let { uuid, repetitions, interval_days, ease_factor } = item;
+        let { repetitions, interval_days, ease_factor } = item;
 
         if (!interval_days) interval_days = 0
         if (!ease_factor) ease_factor = 0
@@ -62,7 +62,9 @@ export default function TestForm({ user_id, item }: Props) {
         next_review_at.setDate(next_review_at.getDate() + interval_days);
 
         const result = await saveCardReview({
-            uuid,
+            uuid: item.uuid,
+            card_uuid: item.card_uuid,
+            user_id: item.user_id,
             interval_days,
             ease_factor,
             repetitions,
@@ -88,21 +90,21 @@ export default function TestForm({ user_id, item }: Props) {
                 </Button>
             </div>
             <div className="flex flex-row items-center justify-center">
-                {item.question.length < 30
+                {item.card.question.length < 30
                     ? (<div className='my-5 font-bold text-2xl md:text-4xl lg:text-6xl xl:text-8xl'>
                         <pre className='font-roboto leading-none'>
-                            {item.question}
+                            {item.card.question}
                         </pre>
                     </div>)
                     : (<div className='my-5 font-bold text-base md:text-xl lg:text-2xl xl:text-4xl'>
                         <pre className='font-roboto leading-none'>
-                            {item.question}
+                            {item.card.question}
                         </pre>
                     </div>)
                 }
             </div>
             <div className='flex flex-row my-5 items-center justify-center gap-4'>
-                {item.suggestion.length > 0 ? (
+                {item.card.suggestion.length > 0 ? (
                     <Button
                         color="primary"
                         variant="solid"
@@ -155,28 +157,28 @@ export default function TestForm({ user_id, item }: Props) {
             {stateSuggestion ? (
                 <Textarea isDisabled
                     classNames={{ input: 'text-2xl leading-tight font-roboto' }}
-                    defaultValue={item.suggestion}
+                    defaultValue={item.card.suggestion}
                 />
             ) : null}
             {stateAnswer ? (
                 <div
                     className='MD my-1 text-base md:text-xl lg:text-2xl xl:text-4xl leading-tight font-roboto indent-0 whitespace-pre-wrap break-words hyphens-auto'
                     dangerouslySetInnerHTML={{
-                        __html: getHTML(item.answer)
+                        __html: getHTML(item.card.answer)
                     }}
                 />
             ) : null}
             {stateAnswer ? (
                 <Textarea isDisabled
                     classNames={{ input: 'text-2xl leading-tight font-roboto' }}
-                    defaultValue={item.note}
+                    defaultValue={item.card.note}
                 />
             ) : null}
-            {item.note.indexOf(`"lemma":"`) >= 0 && (
+            {item.card.note.indexOf(`"lemma":"`) >= 0 && (
                 <div className="flex flex-row gap-4 items-center justify-center">
                     <Button color='primary'
                         onPress={async () => {
-                            let m = item.note.match(/"lemma":"([^"]+)"/)
+                            let m = item.card.note.match(/"lemma":"([^"]+)"/)
                             if (m) {
                                 let lemmas = [m[1].trim()]
                                 setStateExamples(await searchSentenceByLemma(lemmas))
